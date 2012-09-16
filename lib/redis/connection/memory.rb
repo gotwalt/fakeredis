@@ -590,7 +590,16 @@ class Redis
         return false unless @data[key]
         @data[key].key?(field)
       end
-
+      
+      def publish(key, value)
+        0 # no listeners
+      end
+      
+      def subscribe(key, &block)
+        sleep(1)
+        yield true
+      end
+      
       def sync ; end
 
       def [](key)
