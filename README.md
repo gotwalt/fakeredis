@@ -1,4 +1,4 @@
-# FakeRedis [![Build Status](http://travis-ci.org/guilleiguaran/fakeredis.png)](http://travis-ci.org/guilleiguaran/fakeredis)
+# FakeRedis [![Build Status](https://secure.travis-ci.org/guilleiguaran/fakeredis.png)](http://travis-ci.org/guilleiguaran/fakeredis)
 This a fake implementation of redis-rb for machines without Redis or test environments
 
 
@@ -65,6 +65,7 @@ Or:
 * [jredville](https://github.com/jredville)
 * [redsquirrel](https://github.com/redsquirrel)
 * [dpick](https://github.com/dpick)
+* [caius](https://github.com/caius) 
 * [Travis-CI](http://travis-ci.org/) (Travis-CI also uses Fakeredis in its tests!!!)
 
 
