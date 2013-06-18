@@ -592,16 +592,16 @@ class Redis
         return false unless data[key]
         data[key].key?(field)
       end
-      
+
       def publish(key, value)
         0 # no listeners
       end
-      
+
       def subscribe(key, &block)
         sleep(1)
         yield true
       end
-      
+
       def sync ; end
 
       def [](key)
@@ -810,6 +810,9 @@ class Redis
       def zrevrange(key, start, stop, with_scores = nil)
         data_type_check(key, ZSet)
         return [] unless data[key]
+
+        start = start || 0
+        stop = stop || 1000000000
 
         if with_scores
           data[key].sort_by {|_,v| -v }
