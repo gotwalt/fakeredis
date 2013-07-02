@@ -44,6 +44,10 @@ module FakeRedis
       @client.zscore("key", "val2").should be == 2
       @client.zscore("key", "val3").should be == 3
       @client.zscore("key", "val4").should be == 4
+
+      @client.zadd("key", [[5, "val5"], [3, "val6"]]).should be == 2
+      @client.zscore("key", "val5").should be == 5
+      @client.zscore("key", "val6").should be == 3
     end
 
     it "should error with wrong number of arguments when adding members" do
@@ -66,6 +70,17 @@ module FakeRedis
       @client.zrem("key", "val").should be(false)
       @client.zadd("key", 1, "val").should be(true)
       @client.zrem("key", "val").should be(true)
+    end
+
+    it "should remove multiple members from sorted sets" do
+      @client.zrem("key2", %w(val)).should be == 0
+      @client.zrem("key2", %w(val val2 val3)).should be == 0
+
+      @client.zadd("key2", 1, "val")
+      @client.zadd("key2", 1, "val2")
+      @client.zadd("key2", 1, "val3")
+
+      @client.zrem("key2", %w(val val2 val3 val4)).should be == 3
     end
 
     it "should remove sorted set's key when it is empty" do
@@ -106,10 +121,10 @@ module FakeRedis
     end
 
     # These won't pass until redis-rb releases v3.0.2
-    # it "should handle infinity values when incrementing a sorted set key" do
-    #   @client.zincrby("bar", "+inf", "s2").should be == Infinity
-    #   @client.zincrby("bar", "-inf", "s1").should be == -Infinity
-    # end
+    it "should handle infinity values when incrementing a sorted set key" do
+      @client.zincrby("bar", "+inf", "s2").should be == Infinity
+      @client.zincrby("bar", "-inf", "s1").should be == -Infinity
+    end
 
     it "should return a range of members in a sorted set, by index" do
       @client.zadd("key", 1, "one")
@@ -189,6 +204,14 @@ module FakeRedis
 
       @client.zrevrank("key", "three").should be == 0
       @client.zrevrank("key", "four").should be_nil
+    end
+
+    it "should not raise errors for zrank() on accessing a non-existing key in a sorted set" do
+      @client.zrank("no_such_key", "no_suck_id").should be_nil
+    end
+
+    it "should not raise errors for zrevrank() on accessing a non-existing key in a sorted set" do
+      @client.zrevrank("no_such_key", "no_suck_id").should be_nil
     end
 
     describe "#zinterstore" do
@@ -274,6 +297,17 @@ module FakeRedis
 
         @client.zremrangebyscore("key", 0, 2).should be == 2
         @client.zcard("key").should be == 1
+      end
+
+      it "should remove items by score with infinity" do # Issue #50
+        @client.zadd("key", 10.0, "one")
+        @client.zadd("key", 20.0, "two")
+        @client.zadd("key", 30.0, "three")
+        @client.zremrangebyscore("key", "-inf", "+inf").should be == 3
+        @client.zcard("key").should be == 0
+        @client.zscore("key", "one").should be_nil
+        @client.zscore("key", "two").should be_nil
+        @client.zscore("key", "three").should be_nil
       end
 
       it "should return 0 if the key didn't exist" do

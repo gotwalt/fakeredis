@@ -134,6 +134,15 @@ module FakeRedis
       @client.set("key3", "value3")
 
       @client.mget("key1", "key2", "key3").should be == ["value1", "value2", "value3"]
+      @client.mget(["key1", "key2", "key3"]).should be == ["value1", "value2", "value3"]
+    end
+
+    it "returns nil for non existent keys" do
+      @client.set("key1", "value1")
+      @client.set("key3", "value3")
+
+      @client.mget("key1", "key2", "key3", "key4").should be == ["value1", nil, "value3", nil]
+      @client.mget(["key1", "key2", "key3", "key4"]).should be == ["value1", nil, "value3", nil]
     end
 
     it 'raises an argument error when not passed any fields' do
@@ -147,6 +156,15 @@ module FakeRedis
 
       @client.get("key1").should be == "value1"
       @client.get("key2").should be == "value2"
+    end
+
+    it "should raise error if command arguments count is wrong" do
+      expect { @client.mset }.to raise_error(Redis::CommandError, "ERR wrong number of arguments for 'mset' command")
+      expect { @client.mset(:key1) }.to raise_error(Redis::CommandError, "ERR wrong number of arguments for 'mset' command")
+      expect { @client.mset(:key1, "value", :key2) }.to raise_error(Redis::CommandError, "ERR wrong number of arguments for 'mset' command")
+
+      @client.get("key1").should be_nil
+      @client.get("key2").should be_nil
     end
 
     it "should set multiple keys to multiple values, only if none of the keys exist" do
