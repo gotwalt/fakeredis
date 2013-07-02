@@ -784,11 +784,15 @@ class Redis
         return 0 unless data[key]
 
         response = values.map do |v|
-          data[key].delete(v) if data[key].has_key?(v)
+          data[key].delete(v.to_s) if data[key]
         end.compact.size
 
         remove_key_for_empty_collection(key)
         response
+
+        # exists = false
+        # exists = data[key].delete(value.to_s) if data[key]
+        # !!exists
       end
 
       def zcard(key)
