@@ -782,12 +782,12 @@ class Redis
 
       def zrank(key, value)
         data_type_check(key, ZSet)
-        data[key].keys.sort_by {|k| data[key][k] }.index(value.to_s)
+        (data[key].try(:keys) || []).sort_by {|k| data[key][k] }.index(value.to_s)
       end
 
       def zrevrank(key, value)
         data_type_check(key, ZSet)
-        data[key].keys.sort_by {|k| -data[key][k] }.index(value.to_s)
+        (data[key].try(:keys) || []).sort_by {|k| -data[key][k] }.index(value.to_s)
       end
 
       def zrange(key, start, stop, with_scores = nil)
